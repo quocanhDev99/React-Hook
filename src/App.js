@@ -1,23 +1,99 @@
-import logo from './logo.svg';
-import './App.css';
+// import logo from './logo.svg';
+import React, {useState, useEffect} from 'react';
+import queryString from 'query-string';
+import './App.scss';
+import ColorBox from './components/ColorBox';
+import TodoForm from './components/TodoForm';
+import TodoList from './components/TodoList';
+import PostList from './components/PostList';
+import Pagination from './components/Pagination'
+
 
 function App() {
+
+  const [todoList, setTodoList] = useState([
+    {id:1, title:'I luv u 3000'},
+    {id:2, title:'I miss u so much'},
+    {id:3, title:'I want to kiss u'},
+  ]);
+
+  const [postList, setPostList] = useState([]);
+  const [pagination, setPagination] = useState({
+    _page: 1,
+    _limit: 10,
+    _totalRows: 1,
+  });
+  const [filters, setFilters] = useState({
+    _limit:10,
+    _page:1,
+  });
+
+  useEffect(() => {
+    async function fetchPostList() {
+      try{
+        const paramString = queryString.stringify(filters);
+        const requestURL = `http://js-post-api.herokuapp.com/api/posts?${paramString}`;
+        const respone = await fetch(requestURL);
+        const responeJSON = await respone.json();
+        console.log({responeJSON});
+      
+        const {data, pagination} = responeJSON;
+        console.log('PostList effect');
+        setPostList(data);
+        setPagination(pagination);
+      }catch(error){
+        console.log('Failed to fetch post list', error.message);
+      }
+    }
+    fetchPostList();
+  }, [filters]);
+
+  useEffect(() => {
+    console.log('ToDoList effect');
+  });
+
+  function handelPageChange(newPage) {
+    console.log('New page: ',newPage);
+    setFilters({
+      ...filters,
+      _page: newPage,
+    })
+  }
+
+  function handleToDoClick(todo) {
+    console.log(todo);
+    const index = todoList.findIndex( x =>x.id === todo.id );
+    if(index < 0) return;
+
+    const newToDoList = [...todoList];
+    newToDoList.splice(index,1);
+    setTodoList(newToDoList);
+  }
+
+  function handleTodoForm(formValue) {
+    console.log('Form submit: ', formValue);
+    // add new todo to current todo list
+    const newTodo = {
+      id:todoList.length + 1,
+      ...formValue,
+    };
+    const newTodoList = [...todoList];
+    newTodoList.push(newTodo);
+    setTodoList(newTodoList);
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>React Hook - PostList</h1>
+      {/* <ColorBox/> */}
+      
+      {/* <TodoForm onsubmit={handleTodoForm}/>
+      <TodoList todos={todoList} onToDoClick={handleToDoClick}/> */}
+      <PostList posts={postList}/>
+      <Pagination
+        pagination = {pagination}
+        onPageChange = {handelPageChange}
+      />
     </div>
   );
 }
