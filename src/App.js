@@ -7,6 +7,9 @@ import TodoForm from './components/TodoForm';
 import TodoList from './components/TodoList';
 import PostList from './components/PostList';
 import Pagination from './components/Pagination'
+import PostFilterForms from './components/PostFilterForms';
+import Clock from './components/Clock';
+import BetterClock from './components/BetterClock';
 
 
 function App() {
@@ -82,18 +85,38 @@ function App() {
     setTodoList(newTodoList);
   }
 
+  function handleFiltersChange(newFilters) {
+    console.log('New: ', newFilters);
+    setFilters({
+      ...filters,
+      _page:1,
+      title_like: newFilters.searchTerm
+    });
+  }
+
+  const [showClock, setShowClock] = useState(true);
+
   return (
     <div className="App">
-      <h1>React Hook - PostList</h1>
+      <h1>React Hook - Clock</h1>
       {/* <ColorBox/> */}
       
       {/* <TodoForm onsubmit={handleTodoForm}/>
       <TodoList todos={todoList} onToDoClick={handleToDoClick}/> */}
+      {/* <PostFilterForms onSubmit={handleFiltersChange}/>
       <PostList posts={postList}/>
       <Pagination
         pagination = {pagination}
         onPageChange = {handelPageChange}
-      />
+      /> */}
+      {showClock && <Clock/>}
+      <BetterClock/>
+      <div>
+        <button onClick={() => setShowClock(false)}>
+          Hide clock
+        </button>
+      </div>
+      
     </div>
   );
 }
